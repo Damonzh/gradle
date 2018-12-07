@@ -435,7 +435,7 @@ project.extensions.create("some", SomeExtension, objects)
         """
 
         when:
-        executer.expectDeprecationWarnings(4)
+        executer.expectDeprecationWarnings(5)
         succeeds()
 
         then:
