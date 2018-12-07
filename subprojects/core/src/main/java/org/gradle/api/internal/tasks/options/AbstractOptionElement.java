@@ -49,7 +49,7 @@ abstract class AbstractOptionElement implements OptionElement {
         if (setter.getRawType().equals(Boolean.class) || setter.getRawType().equals(Boolean.TYPE)) {
             return new BooleanOptionElement(optionName, option, setter);
         }
-        if (setter.getRawType().isAssignableFrom(List.class)) {
+        if (setter.getRawType().equals(List.class)) {
             Class<?> elementType = ModelType.of(setter.getGenericType()).getTypeVariables().get(0).getRawClass();
             return new MultipleValueOptionElement(optionName, option, elementType, setter, notationParserFactory);
         }

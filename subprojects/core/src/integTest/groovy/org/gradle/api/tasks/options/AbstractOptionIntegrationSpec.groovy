@@ -48,6 +48,30 @@ abstract class AbstractOptionIntegrationSpec extends AbstractIntegrationSpec {
         """
     }
 
+    String taskWithFlagMethod() {
+        """
+            import org.gradle.api.DefaultTask;
+            import org.gradle.api.tasks.TaskAction;
+            import org.gradle.api.tasks.options.Option;
+
+            import java.util.List;
+            
+            public class SampleTask extends DefaultTask {
+                private boolean myProp;
+                
+                @Option(option = "myProp", description = "Configures command line option 'myProp'.")
+                public void active() {
+                    this.myProp = true;
+                }
+                
+                @TaskAction
+                public void renderOptionValue() {
+                    System.out.println("Value of myProp: " + myProp);
+                }
+            }
+        """
+    }
+
     String groovyTaskWithSingleOption(String optionType) {
         """
             public class SampleTask extends DefaultTask {

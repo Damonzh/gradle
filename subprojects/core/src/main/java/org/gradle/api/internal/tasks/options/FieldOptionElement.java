@@ -32,7 +32,7 @@ public class FieldOptionElement {
         String optionName = calOptionName(option, field);
         Class<?> fieldType = field.getType();
 
-        if (fieldType.isAssignableFrom(Property.class)) {
+        if (Property.class.isAssignableFrom(fieldType)) {
             PropertySetter setter = mutateUsingGetter(field);
             return AbstractOptionElement.of(optionName, option, setter, optionValueNotationParserFactory);
         }

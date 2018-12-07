@@ -37,21 +37,22 @@ class TaskOptionIntegrationTest extends AbstractOptionIntegrationSpec {
         optionType       | options                              | optionValue         | description
         'String'         | ['--myProp=test']                    | 'test'              | 'provided'
         'String'         | ['--myProp=ab\'c=123:x\\yz45']       | 'ab\'c=123:x\\yz45' | 'provided with special characters'
-        'String'         | []                                   | 'null '             | 'not provided'
+        'String'         | []                                   | 'null'              | 'not provided'
         'Boolean'        | ['--myProp']                         | 'true'              | 'provided'
-        'Boolean'        | []                                   | 'null '             | 'not provided'
+        'Boolean'        | []                                   | 'null'              | 'not provided'
         'boolean'        | ['--myProp']                         | 'true'              | 'provided'
         'boolean'        | []                                   | 'false'             | 'not provided'
         'TestEnum'       | ['--myProp=OPT_2']                   | 'OPT_2'             | 'provided with upper case'
         'TestEnum'       | ['--myProp=opt_2']                   | 'OPT_2'             | 'provided with lower case'
         'TestEnum'       | []                                   | 'null'              | 'not provided'
+        'Object'         | ['--myProp=test']                    | 'test'              | 'provided'
+        'Object'         | []                                   | 'null'              | 'not provided'
         'List<String>'   | ['--myProp=a', '--myProp=b']         | '[a, b]'            | 'provided'
-        'List<String>'   | []                                   | 'null '             | 'not provided'
+        'List<String>'   | []                                   | 'null'              | 'not provided'
         'List<String>'   | ['--myProp=a,b']                     | '[a,b]'             | 'provided with incorrect syntax'
         'List<TestEnum>' | ['--myProp=OPT_2', '--myProp=OPT_3'] | '[OPT_2, OPT_3]'    | 'provided with upper case'
         'List<TestEnum>' | ['--myProp=opt_2', '--myProp=opt_3'] | '[OPT_2, OPT_3]'    | 'provided with lower case'
-        'List<TestEnum>' | []                                   | 'null '             | 'not provided'
-        'List<TestEnum>' | ['--myProp=OPT_2,OPT_3']             | '[OPT_2,OPT_3]'     | 'provided with incorrect syntax'
+        'List<TestEnum>' | []                                   | 'null'              | 'not provided'
     }
 
     @Unroll
@@ -70,21 +71,40 @@ class TaskOptionIntegrationTest extends AbstractOptionIntegrationSpec {
         optionType       | options                              | optionValue         | description
         'String'         | ['--myProp=test']                    | 'test'              | 'provided'
         'String'         | ['--myProp=ab\'c=123:x\\yz45']       | 'ab\'c=123:x\\yz45' | 'provided with special characters'
-        'String'         | []                                   | 'null '             | 'not provided'
+        'String'         | []                                   | 'null'              | 'not provided'
         'Boolean'        | ['--myProp']                         | 'true'              | 'provided'
-        'Boolean'        | []                                   | 'null '             | 'not provided'
+        'Boolean'        | []                                   | 'null'              | 'not provided'
         'boolean'        | ['--myProp']                         | 'true'              | 'provided'
         'boolean'        | []                                   | 'false'             | 'not provided'
         'TestEnum'       | ['--myProp=OPT_2']                   | 'OPT_2'             | 'provided with upper case'
         'TestEnum'       | ['--myProp=opt_2']                   | 'OPT_2'             | 'provided with lower case'
         'TestEnum'       | []                                   | 'null'              | 'not provided'
+        'Object'         | ['--myProp=test']                    | 'test'              | 'provided'
+        'Object'         | []                                   | 'null'              | 'not provided'
         'List<String>'   | ['--myProp=a', '--myProp=b']         | '[a, b]'            | 'provided'
-        'List<String>'   | []                                   | 'null '             | 'not provided'
+        'List<String>'   | []                                   | 'null'              | 'not provided'
         'List<String>'   | ['--myProp=a,b']                     | '[a,b]'             | 'provided with incorrect syntax'
         'List<TestEnum>' | ['--myProp=OPT_2', '--myProp=OPT_3'] | '[OPT_2, OPT_3]'    | 'provided with upper case'
         'List<TestEnum>' | ['--myProp=opt_2', '--myProp=opt_3'] | '[OPT_2, OPT_3]'    | 'provided with lower case'
-        'List<TestEnum>' | []                                   | 'null '             | 'not provided'
-        'List<TestEnum>' | ['--myProp=OPT_2,OPT_3']             | '[OPT_2,OPT_3]'     | 'provided with incorrect syntax'
+        'List<TestEnum>' | []                                   | 'null'              | 'not provided'
+    }
+
+    @Unroll
+    def "can set boolean option using no-args method when #description for Java task on command line"() {
+        given:
+        file('buildSrc/src/main/java/SampleTask.java') << taskWithFlagMethod()
+        buildFile << sampleTask()
+
+        when:
+        run(['sample'] + options as String[])
+
+        then:
+        outputContains("Value of myProp: $optionValue")
+
+        where:
+        options      | optionValue | description
+        ['--myProp'] | 'true'      | 'provided'
+        []           | 'false'     | 'not provided'
     }
 
     def "can render option with help for Java task"() {
@@ -195,15 +215,15 @@ Options
         outputContains("Value of myProp: $optionValue")
 
         where:
-        optionType       | options                              | optionValue         | description
-        'String'         | ['--myProp=test']                    | 'test'              | 'provided'
-        'String'         | ['--myProp=ab\'c=123:x\\yz45']       | 'ab\'c=123:x\\yz45' | 'provided with special characters'
-        'String'         | []                                   | 'null '             | 'not provided'
-        'Boolean'        | ['--myProp']                         | 'true'              | 'provided'
-        'Boolean'        | []                                   | 'null '             | 'not provided'
-        'TestEnum'       | ['--myProp=OPT_2']                   | 'OPT_2'             | 'provided with upper case'
-        'TestEnum'       | ['--myProp=opt_2']                   | 'OPT_2'             | 'provided with lower case'
-        'TestEnum'       | []                                   | 'null'              | 'not provided'
+        optionType | options                        | optionValue         | description
+        'String'   | ['--myProp=test']              | 'test'              | 'provided'
+        'String'   | ['--myProp=ab\'c=123:x\\yz45'] | 'ab\'c=123:x\\yz45' | 'provided with special characters'
+        'String'   | []                             | 'null '             | 'not provided'
+        'Boolean'  | ['--myProp']                   | 'true'              | 'provided'
+        'Boolean'  | []                             | 'null '             | 'not provided'
+        'TestEnum' | ['--myProp=OPT_2']             | 'OPT_2'             | 'provided with upper case'
+        'TestEnum' | ['--myProp=opt_2']             | 'OPT_2'             | 'provided with lower case'
+        'TestEnum' | []                             | 'null'              | 'not provided'
     }
 
     @Unroll
@@ -219,15 +239,15 @@ Options
         outputContains("Value of myProp: $optionValue")
 
         where:
-        optionType       | options                              | optionValue         | description
-        'String'         | ['--myProp=test']                    | 'test'              | 'provided'
-        'String'         | ['--myProp=ab\'c=123:x\\yz45']       | 'ab\'c=123:x\\yz45' | 'provided with special characters'
-        'String'         | []                                   | 'null '             | 'not provided'
-        'Boolean'        | ['--myProp']                         | 'true'              | 'provided'
-        'Boolean'        | []                                   | 'null '             | 'not provided'
-        'TestEnum'       | ['--myProp=OPT_2']                   | 'OPT_2'             | 'provided with upper case'
-        'TestEnum'       | ['--myProp=opt_2']                   | 'OPT_2'             | 'provided with lower case'
-        'TestEnum'       | []                                   | 'null'              | 'not provided'
+        optionType | options                        | optionValue         | description
+        'String'   | ['--myProp=test']              | 'test'              | 'provided'
+        'String'   | ['--myProp=ab\'c=123:x\\yz45'] | 'ab\'c=123:x\\yz45' | 'provided with special characters'
+        'String'   | []                             | 'null '             | 'not provided'
+        'Boolean'  | ['--myProp']                   | 'true'              | 'provided'
+        'Boolean'  | []                             | 'null '             | 'not provided'
+        'TestEnum' | ['--myProp=OPT_2']             | 'OPT_2'             | 'provided with upper case'
+        'TestEnum' | ['--myProp=opt_2']             | 'OPT_2'             | 'provided with lower case'
+        'TestEnum' | []                             | 'null'              | 'not provided'
     }
 
     static String sampleTask() {

@@ -40,10 +40,17 @@ public class MethodOptionElement {
             PropertySetter setter = mutateUsingReturnValue(method);
             return AbstractOptionElement.of(optionName, option, setter, optionValueNotationParserFactory);
         }
+        if (method.getParameterTypes().length == 0) {
+            return new BooleanOptionElement(optionName, option, setFlagUsingMethod(method));
+        }
 
         assertCanUseMethodParam(optionName, method);
         PropertySetter setter = mutateUsingParameter(method);
         return AbstractOptionElement.of(optionName, option, setter, optionValueNotationParserFactory);
+    }
+
+    private static PropertySetter setFlagUsingMethod(final Method method) {
+        return new MethodInvokingSetter(method);
     }
 
     private static PropertySetter mutateUsingParameter(Method method) {
@@ -51,7 +58,7 @@ public class MethodOptionElement {
     }
 
     private static PropertySetter mutateUsingReturnValue(Method method) {
-        return new PropertyMethodSetter(method);
+        return new PropertyValueSetter(method);
     }
 
     private static void assertCanUseMethodReturnType(String optionName, Method method) {
@@ -98,11 +105,11 @@ public class MethodOptionElement {
         }
     }
 
-    private static class PropertyMethodSetter implements PropertySetter {
+    private static class PropertyValueSetter implements PropertySetter {
         private final Method method;
         private final Class<?> elementType;
 
-        public PropertyMethodSetter(Method method) {
+        public PropertyValueSetter(Method method) {
             this.method = method;
             this.elementType = ModelType.of(method.getGenericReturnType()).getTypeVariables().get(0).getRawClass();
         }
@@ -126,6 +133,34 @@ public class MethodOptionElement {
         public void setValue(Object target, Object value) {
             Property property = (Property) JavaReflectionUtil.method(Object.class, method).invoke(target);
             property.set(value);
+        }
+    }
+
+    private static class MethodInvokingSetter implements PropertySetter {
+        private final Method method;
+
+        public MethodInvokingSetter(Method method) {
+            this.method = method;
+        }
+
+        @Override
+        public Class<?> getDeclaringClass() {
+            return method.getDeclaringClass();
+        }
+
+        @Override
+        public Class<?> getRawType() {
+            return Void.TYPE;
+        }
+
+        @Override
+        public Type getGenericType() {
+            return Void.TYPE;
+        }
+
+        @Override
+        public void setValue(Object object, Object value) {
+            JavaReflectionUtil.method(Object.class, method).invoke(object);
         }
     }
 }
